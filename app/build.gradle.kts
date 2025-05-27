@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.mapbox.maps:android:11.12.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

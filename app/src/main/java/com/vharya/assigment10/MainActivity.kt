@@ -2,6 +2,7 @@ package com.vharya.assigment10
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
@@ -15,15 +16,19 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.mapbox.geojson.Point
+import com.mapbox.maps.CameraOptions
+import com.mapbox.maps.MapView
+import com.mapbox.maps.plugin.annotation.annotations
 
 
 class MainActivity : AppCompatActivity() {
     private val LOCATION_PERMISSION_REQUEST = 1001
 
     private lateinit var locationClient: FusedLocationProviderClient
+    private lateinit var currentLocation: Location
 
-    private lateinit var latitudeTextView: TextView
-    private lateinit var longitudeTextView: TextView
+    private lateinit var mapView: MapView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +40,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        latitudeTextView = findViewById(R.id.latitude)
-        longitudeTextView = findViewById(R.id.longitude)
+        mapView = findViewById(R.id.map_view)
 
         locationClient = LocationServices.getFusedLocationProviderClient(this)
 
@@ -51,7 +55,16 @@ class MainActivity : AppCompatActivity() {
 
         val locationRequest = LocationRequest.Builder(3000).build()
         locationClient.requestLocationUpdates(locationRequest, { getCurrentLocation() }, Looper.getMainLooper())
-//        getCurrentLocation()
+        getCurrentLocation()
+
+        mapView.mapboxMap.setCamera(
+            CameraOptions.Builder()
+                .center(Point.fromLngLat(currentLocation.longitude, currentLocation.latitude))
+                .build()
+        )
+
+//        val annotationApi = mapView.annotations
+//        val annotationManager = annotationApi.createAnnotationManager(mapView)
     }
 
     override fun onRequestPermissionsResult(
@@ -91,11 +104,10 @@ class MainActivity : AppCompatActivity() {
 
         locationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
-                val lat = location.latitude
-                val long = location.longitude
+//                val lat = location.latitude
+//                val long = location.longitude
 
-                latitudeTextView.text = "$lat"
-                longitudeTextView.text = "$long"
+                currentLocation = location
             } else {
                 val builder: AlertDialog.Builder = AlertDialog.Builder(this)
                 builder.setTitle("Couldn't find the location")
